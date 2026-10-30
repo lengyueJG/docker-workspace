@@ -1,8 +1,8 @@
 # ── 3dgs 训练产物（可重新生成，体积大，不进版本控制）──
-docker-3dgs/output/
+output/
 
 # ── 数据集（外部数据，体积大）──
-docker-3dgs/data/
+data/
 
 # ── Python 缓存 ──
 __pycache__/
