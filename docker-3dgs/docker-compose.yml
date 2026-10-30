@@ -1,0 +1,57 @@
+# =============================================================================
+# 3D Gaussian Splatting — docker-compose
+# 用法:
+#   1) 构建镜像:  docker compose build
+#   2) 启动容器:  docker compose up -d && docker compose exec gaussian-splatting bash
+#   3) 单步构建并进入: docker compose run --rm gaussian-splatting bash
+# =============================================================================
+
+services:
+  gaussian-splatting:
+    build:
+      # Dockerfile 在当前目录，但构建上下文是 3DGS 源码目录
+      context: /home/lengyue/workspace/3D-Reconstruction/gaussian-splatting
+      dockerfile: /home/lengyue/workspace/trae/docker-3dgs/Dockerfile
+      args:
+        # Ada Lovelace (4090) = 8.9；如需兼容多架构可写 "7.5;8.0;8.6;8.9"
+        TORCH_CUDA_ARCH_LIST: ${TORCH_CUDA_ARCH_LIST:-8.9}
+    image: 3dgs:latest
+    container_name: 3dgs
+    # GPU 挂载 —— nvidia-container-toolkit v1.10+ 推荐写法
+    # NVIDIA_VISIBLE_DEVICES 环境变量可覆盖: "0" / "1" / "all"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+    # docker compose v2 不需要 runtime: nvidia，用 deploy.resources 即可
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    # 端口: 6009 是 3DGS 训练时网络 viewer 的默认端口
+    ports:
+      - "6009:6009"
+    # Volume: 源码 + 输出目录持久化
+    volumes:
+      # 源码目录挂载，开发时实时同步（覆盖镜像内的 COPY）
+      - /home/lengyue/workspace/3D-Reconstruction/gaussian-splatting:/workspace/gaussian-splatting
+      # bind mount: 容器修改直接反映到宿主目录，方便查看训练产物和数据集
+      - /home/lengyue/workspace/trae/docker-3dgs/output:/workspace/gaussian-splatting/output
+      - /home/lengyue/workspace/trae/docker-3dgs/data:/workspace/gaussian-splatting/data
+      # named volume 版本（不使用时注释掉）:
+      # - 3dgs_output:/workspace/gaussian-splatting/output
+      # - 3dgs_data:/workspace/gaussian-splatting/data
+    # 共享内存 —— PyTorch DataLoader 多进程需要足够大的 /dev/shm
+    shm_size: "16g"
+    # 容器启动后保持运行（方便 exec 进入）
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+# named volume 声明（改用 bind mount 后不再需要，保留以备切回）:
+# volumes:
+#   3dgs_output:
+#   3dgs_data:
