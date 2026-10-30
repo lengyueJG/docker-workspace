@@ -7,7 +7,7 @@
 ## 1. 启动 Docker
 
 ```bash
-cd /home/lengyue/workspace/trae/docker-3dgs
+cd $HOME/workspace/trae/docker-3dgs
 
 # 首次或修改 Dockerfile 后构建镜像（已构建过可跳过）
 sudo docker compose build
@@ -69,7 +69,7 @@ python train.py \
     --port 6009
 ```
 
-- `-s`：数据集目录（容器内对应宿主 `/home/lengyue/data/3d-reconstruction`）。
+- `-s`：数据集目录（容器内对应宿主 `$HOME/data/3d-reconstruction`）。
 - `-m`：模型/输出目录（对应宿主 `output/NRGBD/complete_kitchen`），训练完的 `point_cloud/iteration_30000/point_cloud.ply` 在这里。
 
 ### 3.2 渲染与指标

@@ -19,7 +19,7 @@
 ## 2. 容器生命周期
 
 ```bash
-cd /home/lengyue/workspace/trae/docker-3gds
+cd $HOME/workspace/trae/docker-3gds
 
 # 构建镜像
 sudo docker compose build
@@ -182,11 +182,11 @@ python train.py \
 ```yaml
 volumes:
   # 源码目录：容器修改实时同步到宿主
-  - /home/lengyue/workspace/3D-Reconstruction/gaussian-splatting:/workspace/gaussian-splatting
+  - $HOME/workspace/3D-Reconstruction/gaussian-splatting:/workspace/gaussian-splatting
   # 训练输出：直接出现在宿主目录
-  - /home/lengyue/workspace/trae/docker-3gds/output:/workspace/gaussian-splatting/output
+  - $HOME/workspace/trae/docker-3gds/output:/workspace/gaussian-splatting/output
   # 数据集：直接出现在宿主目录
-  - /home/lengyue/workspace/trae/docker-3gds/data:/workspace/gaussian-splatting/data
+  - $HOME/workspace/trae/docker-3gds/data:/workspace/gaussian-splatting/data
 ```
 
 ### 7.2 两种挂载的区别
@@ -225,8 +225,8 @@ volumes:
 ### 方式 1：从运行中的容器拷（最简单）
 
 ```bash
-sudo docker cp 3dgs:/workspace/gaussian-splatting/output /home/lengyue/workspace/trae/docker-3gds/output
-sudo docker cp 3dgs:/workspace/gaussian-splatting/data /home/lengyue/workspace/trae/docker-3gds/data
+sudo docker cp 3dgs:/workspace/gaussian-splatting/output $HOME/workspace/trae/docker-3gds/output
+sudo docker cp 3dgs:/workspace/gaussian-splatting/data $HOME/workspace/trae/docker-3gds/data
 ```
 
 ### 方式 2：用临时容器挂载卷拷贝（容器没在跑也行）
@@ -235,12 +235,12 @@ sudo docker cp 3dgs:/workspace/gaussian-splatting/data /home/lengyue/workspace/t
 # named volume → 宿主目录
 sudo docker run --rm \
     -v 3dgs_output:/from \
-    -v /home/lengyue/workspace/trae/docker-3gds/output:/to \
+    -v $HOME/workspace/trae/docker-3gds/output:/to \
     alpine cp -a /from/. /to/
 
 sudo docker run --rm \
     -v 3dgs_data:/from \
-    -v /home/lengyue/workspace/trae/docker-3gds/data:/to \
+    -v $HOME/workspace/trae/docker-3gds/data:/to \
     alpine cp -a /from/. /to/
 ```
 
@@ -251,18 +251,18 @@ sudo docker volume inspect 3dgs_output
 # "Mountpoint": "/var/lib/docker/volumes/3dgs_output/_data"
 
 sudo cp -a /var/lib/docker/volumes/3dgs_output/_data/. \
-    /home/lengyue/workspace/trae/docker-3gds/output/
+    $HOME/workspace/trae/docker-3gds/output/
 ```
 
 ### 方式 4：打包成 tar 迁移
 
 ```bash
 # 导出
-sudo docker run --rm -v 3dgs_output:/data -v /home/lengyue/backup:/backup alpine \
+sudo docker run --rm -v 3dgs_output:/data -v $HOME/backup:/backup alpine \
     tar czf /backup/3dgs_output.tar.gz -C /data .
 
 # 恢复
-sudo docker run --rm -v 3dgs_output:/data -v /home/lengyue/backup:/backup alpine \
+sudo docker run --rm -v 3dgs_output:/data -v $HOME/backup:/backup alpine \
     tar xzf /backup/3dgs_output.tar.gz -C /data
 ```
 
@@ -285,7 +285,7 @@ sudo docker commit <container_id> 3dgs:latest
 ## 10. 全量重建（验证 Dockerfile 所有修复）
 
 ```bash
-cd /home/lengyue/workspace/trae/docker-3gds
+cd $HOME/workspace/trae/docker-3gds
 sudo docker compose build --no-cache 2>&1 | tee /tmp/build-full.log
 ```
 

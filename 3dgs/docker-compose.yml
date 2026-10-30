@@ -10,8 +10,8 @@ services:
   gaussian-splatting:
     build:
       # Dockerfile 在当前目录，但构建上下文是 3DGS 源码目录
-      context: /home/lengyue/workspace/3D-Reconstruction/gaussian-splatting
-      dockerfile: /home/lengyue/workspace/docker/3dgs/Dockerfile
+      context: ${HOME}/workspace/3D-Reconstruction/gaussian-splatting
+      dockerfile: ${HOME}/workspace/docker/3dgs/Dockerfile
       args:
         # Ada Lovelace (4090) = 8.9；如需兼容多架构可写 "7.5;8.0;8.6;8.9"
         TORCH_CUDA_ARCH_LIST: ${TORCH_CUDA_ARCH_LIST:-8.9}
@@ -37,10 +37,10 @@ services:
     # Volume: 源码 + 输出目录持久化
     volumes:
       # 源码目录挂载，开发时实时同步（覆盖镜像内的 COPY）
-      - /home/lengyue/workspace/3D-Reconstruction/gaussian-splatting:/workspace/gaussian-splatting
+      - ${HOME}/workspace/3D-Reconstruction/gaussian-splatting:/workspace/gaussian-splatting
       # bind mount: 容器修改直接反映到宿主目录，方便查看训练产物和数据集
-      - /home/lengyue/workspace/docker/3dgs/output:/workspace/gaussian-splatting/output
-      - /home/lengyue/workspace/docker/3dgs/data:/workspace/gaussian-splatting/data
+      - ${HOME}/workspace/docker/3dgs/output:/workspace/gaussian-splatting/output
+      - ${HOME}/workspace/docker/3dgs/data:/workspace/gaussian-splatting/data
       # named volume 版本（不使用时注释掉）:
       # - 3dgs_output:/workspace/gaussian-splatting/output
       # - 3dgs_data:/workspace/gaussian-splatting/data
